@@ -1,4 +1,4 @@
-import gym
+import gym, safety_gym
 import os
 from safe_ppo_agent import Agent
 from train import Train
@@ -9,7 +9,7 @@ import os
 from os.path import dirname
 import randomizer.safe_env
 from ppo_utilities.seeds import set_seeds
-
+from ppo_utilities.evaluation import evaluate_model
 
 TRAIN_FLAG = True
 
@@ -26,7 +26,6 @@ if __name__ == "__main__":
     n_iterations = args.n_iterations
     lr = args.lr
     device = args.device
-
 
     print(f"number of states:{n_states}\n"
           f"action bounds:{action_bounds}\n"
@@ -51,6 +50,12 @@ if __name__ == "__main__":
                         agent=agent,
                         args=args)
         trainer.step()
-
+    else:
+        try:
+            agent.load_weights()
+        except:
+            pass
+        eval_rew, eval_cost = evaluate_model(agent, env, render=True)
+        print(eval_rew, eval_cost)
     # player = Play(env, agent, ENV_NAME)
     # player.evaluate()

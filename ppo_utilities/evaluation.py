@@ -1,14 +1,17 @@
 import numpy as np
 
 
-def evaluate_model(agent, env, state_rms, eval_num=10):
+def evaluate_model(agent, env, state_rms=None, eval_num=10, render=None):
     total_rewards = 0
     total_costs = 0
     for i in range(eval_num):
         s = env.reset()
         done = False
         while not done:
-            s = state_rms(s)
+            if render:
+                env.render()
+            if state_rms is not None:
+                s = state_rms(s)
             dist = agent.choose_dist(s)
             action = dist.sample().cpu().numpy()[0]
 

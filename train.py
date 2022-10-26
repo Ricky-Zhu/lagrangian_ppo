@@ -62,6 +62,10 @@ class Train:
             cost_advs = (cost_advs - cost_advs.mean()) / (cost_advs.std() + 1e-8)
 
         actions = np.vstack(actions)
+
+        # update the penalty param only once
+        penalty_loss = self.compute_penalty_loss(avg_ep_cost)
+        self.agent.optimize_penalty(penalty_loss)
         cur_penalty = softplus(
             self.agent.penalty_param).item()  # fix the penalty value during the training in this iteration
 
@@ -96,11 +100,10 @@ class Train:
 
                 ratio = (new_log_prob - old_log_prob).exp()
                 actor_loss = self.compute_actor_loss(ratio, adv, cost_adv, cur_penalty)
-                penalty_loss = self.compute_penalty_loss(avg_ep_cost)
 
-                self.agent.optimize(actor_loss, critic_loss, cost_critic_loss, penalty_loss)
+                self.agent.optimize(actor_loss, critic_loss, cost_critic_loss)
 
-        return actor_loss, critic_loss, cost_critic_loss, penalty_loss
+        return actor_loss, critic_loss, cost_critic_loss, cur_penalty
 
     def step(self):
         state = self.env.reset()

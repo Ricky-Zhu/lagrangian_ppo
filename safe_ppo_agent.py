@@ -65,7 +65,7 @@ class Agent:
 
         return value.detach().cpu().numpy(), cost_value.detach().cpu().numpy()
 
-    def optimize(self, actor_loss, critic_loss, cost_critic_loss, penalty_loss):
+    def optimize(self, actor_loss, critic_loss, cost_critic_loss):
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
         # torch.nn.utils.clip_grad_norm_(self.current_policy.parameters(), 0.5)
@@ -82,6 +82,7 @@ class Agent:
         cost_critic_loss.backward()
         self.cost_critic_optimizer.step()
 
+    def optimize_penalty(self, penalty_loss):
         self.penalty_optimizer.zero_grad()
         penalty_loss.backward()
         self.penalty_optimizer.step()
